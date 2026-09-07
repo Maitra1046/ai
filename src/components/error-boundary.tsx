@@ -1,24 +1,17 @@
 import * as React from 'react';
-import {
-  Component,
-  type ComponentType,
-  type ErrorInfo,
-  type ReactNode,
-} from 'react';
 
 export interface ErrorFallbackProps {
   error: Error;
   resetError: () => void;
 }
 
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  FallbackComponent?: ComponentType<ErrorFallbackProps>;
-  /** Changing this clears a caught error. Pass the route to recover on navigation. */
+export interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  FallbackComponent?: React.ComponentType<ErrorFallbackProps>;
   resetKey?: unknown;
 }
 
-interface ErrorBoundaryState {
+export interface ErrorBoundaryState {
   error: Error | null;
 }
 
@@ -47,7 +40,6 @@ function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
           This part of the app hit an error. The rest of the app is still
           running.
         </p>
-        {/* Dev only: messages can carry API responses and other internals. */}
         {import.meta.env.DEV ? (
           <pre className="mt-4 overflow-x-auto rounded bg-gray-100 p-3 text-left text-xs text-gray-800">
             {error.message || String(error)}
@@ -69,13 +61,16 @@ export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
-  state: ErrorBoundaryState = { error: null };
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { error: null };
+  }
 
   static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
     return { error: toError(error) };
   }
 
-  componentDidCatch(error: unknown, info: ErrorInfo): void {
+  componentDidCatch(error: unknown, info: React.ErrorInfo): void {
     console.error(
       'ErrorBoundary caught an error:',
       toError(error),
@@ -86,22 +81,22 @@ export class ErrorBoundary extends React.Component<
   componentDidUpdate(prevProps: ErrorBoundaryProps): void {
     if (
       this.state.error !== null &&
-      prevProps.resetKey !== this.props.resetKey
+      prevProps.resetKey !== (this.props as ErrorBoundaryProps).resetKey
     ) {
       this.resetError();
     }
   }
 
   resetError = (): void => {
-    this.setState({ error: null });
+    (this as React.Component<ErrorBoundaryProps, ErrorBoundaryState>).setState({ error: null });
   };
 
-  render(): ReactNode {
+  render(): React.ReactNode {
     const { error } = this.state;
     if (error === null) {
-      return this.props.children;
+      return (this.props as ErrorBoundaryProps).children;
     }
-    const Fallback = this.props.FallbackComponent ?? DefaultFallback;
+    const Fallback = (this.props as ErrorBoundaryProps).FallbackComponent ?? DefaultFallback;
     return <Fallback error={error} resetError={this.resetError} />;
   }
 }
