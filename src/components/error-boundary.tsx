@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   Component,
   type ComponentType,
@@ -64,7 +65,7 @@ function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
   );
 }
 
-export class ErrorBoundary extends Component<
+export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
