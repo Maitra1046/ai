@@ -317,7 +317,10 @@
 .va-delay-3 { animation-delay: 240ms; }
 .va-ledger-row { border-bottom: 1px dashed rgba(87,58,70,.2); }
 .va-ledger-row:last-child { border-bottom: 0; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 @keyframes va-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@media (min-width: 900px) {
+@media (min-width: 640px) {
   .va-shell { width: calc(100% - 184px); max-width: 1180px; margin-left: 184px; margin-right: auto; }
 }
