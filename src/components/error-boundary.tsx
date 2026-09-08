@@ -61,9 +61,12 @@ export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
+  state: ErrorBoundaryState = {
+    error: null,
+  };
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { error: null };
   }
 
   static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
@@ -81,22 +84,22 @@ export class ErrorBoundary extends React.Component<
   componentDidUpdate(prevProps: ErrorBoundaryProps): void {
     if (
       this.state.error !== null &&
-      prevProps.resetKey !== (this.props as ErrorBoundaryProps).resetKey
+      prevProps.resetKey !== this.props.resetKey
     ) {
       this.resetError();
     }
   }
 
   resetError = (): void => {
-    (this as React.Component<ErrorBoundaryProps, ErrorBoundaryState>).setState({ error: null });
+    this.setState({ error: null });
   };
 
   render(): React.ReactNode {
     const { error } = this.state;
     if (error === null) {
-      return (this.props as ErrorBoundaryProps).children;
+      return this.props.children;
     }
-    const Fallback = (this.props as ErrorBoundaryProps).FallbackComponent ?? DefaultFallback;
+    const Fallback = this.props.FallbackComponent ?? DefaultFallback;
     return <Fallback error={error} resetError={this.resetError} />;
   }
 }
