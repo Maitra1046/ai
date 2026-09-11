@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useKhata } from '../context/KhataContext';
-import { ArrowUp, ArrowUpRight, MoreHorizontal, Bot, Trash2 } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, MoreHorizontal, Bot, Mic } from 'lucide-react';
 
 export const AskAITab = () => {
   const { chatMessages, sendChatMessage } = useKhata();
@@ -26,7 +26,7 @@ export const AskAITab = () => {
             <Bot size={22} color="#FAF3EC" />
           </div>
           <div>
-            <h1 style={styles.aiTitle}>Ask VyaparAI</h1>
+            <h1 style={styles.aiTitle}>Ask FinoraAI</h1>
             <div style={styles.statusIndicator}>
               <span style={styles.greenDot} />
               <span>reads your khata, not your bank</span>
@@ -106,6 +106,15 @@ export const AskAITab = () => {
               onChange={(e) => setInputText(e.target.value)}
               style={styles.chatInput}
             />
+            <button
+              type="button"
+              onClick={() => alert('Voice input activated! Listening...')}
+              style={styles.micBtn}
+              className="hover-btn"
+              title="Speak question"
+            >
+              <Mic size={18} color="#573a46" />
+            </button>
             <button type="submit" style={styles.submitBtn} className="hover-btn">
               <ArrowUp size={18} color="#FFFFFF" />
             </button>
@@ -275,6 +284,7 @@ const styles = {
   inputForm: {
     display: 'flex',
     alignItems: 'center',
+    gap: '8px',
     width: '100%',
     backgroundColor: '#FAF5EC',
     border: '1.5px solid #DCD1C0',
@@ -290,6 +300,17 @@ const styles = {
     fontSize: '15px',
     color: 'var(--plum-dark)',
     fontFamily: 'var(--font-main)'
+  },
+  micBtn: {
+    width: '38px',
+    height: '38px',
+    borderRadius: '50%',
+    backgroundColor: '#eee6d7',
+    border: '1px solid #DCD1C0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0
   },
   submitBtn: {
     width: '38px',

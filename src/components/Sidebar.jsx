@@ -19,10 +19,10 @@ export const Sidebar = () => {
         {/* Brand Header */}
         <div style={styles.brandContainer}>
           <div style={styles.logoBadge}>
-            <span style={styles.logoV}>V</span>
+            <span style={styles.logoV}>F</span>
           </div>
           <div style={styles.brandTextWrapper}>
-            <div style={styles.brandTitle}>VyaparAI</div>
+            <div style={styles.brandTitle}>FinoraAI</div>
             <div style={styles.brandSubtitle}>
               YOUR KHATA,<br />MADE CLEAR
             </div>

@@ -195,7 +195,7 @@ export const HomeTab = () => {
               🤖
             </div>
             <div style={styles.darkAiContent}>
-              <div style={styles.darkAiSub}>ASK VYAPARAI</div>
+              <div style={styles.darkAiSub}>ASK FINORAAI</div>
               <div style={styles.darkAiText}>"Where did my money go this month?"</div>
             </div>
             <ArrowRight size={18} color="#FAF3EC" style={{ marginLeft: 'auto' }} />
