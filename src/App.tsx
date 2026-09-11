@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowDownLeft,
@@ -19,6 +19,7 @@ import {
   List,
   MessageCircle,
   Mic,
+  MicOff,
   MoreHorizontal,
   Plus,
   Search,
@@ -779,13 +780,69 @@ function AskAI() {
     { from: 'ai', text: 'Namaste Ramesh. I have your August khata open. What would you like to understand?', detail: 'Based on 47 entries · Aug 2026' },
   ]);
   const [draft, setDraft] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const isRecordingRef = useRef(false);
+  const recognitionRef = useRef<any>(null);
+
   const starters = ['Why was August tight?', 'Can I afford more stock?', 'What should I pay first?'];
+
+  const toggleRecording = () => {
+    if (isRecordingRef.current) {
+      isRecordingRef.current = false;
+      setIsRecording(false);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (_) {}
+      }
+      toast({
+        title: 'Voice Recording Stopped',
+        description: 'Mic turned off.',
+      });
+    } else {
+      isRecordingRef.current = true;
+      setIsRecording(true);
+      toast({
+        title: 'Voice Recording Active 🎙️',
+        description: 'Listening... Click mic again when finished to stop.',
+      });
+
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          const rec = new SpeechRecognition();
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.lang = 'en-IN';
+          rec.onresult = (event: any) => {
+            const transcript = Array.from(event.results)
+              .map((r: any) => r[0].transcript)
+              .join('');
+            setDraft(transcript);
+          };
+          rec.onend = () => {
+            if (isRecordingRef.current) {
+              try {
+                rec.start();
+              } catch (_) {}
+            }
+          };
+          rec.start();
+          recognitionRef.current = rec;
+        } catch (err) {
+          console.warn('Speech recognition error:', err);
+        }
+      }
+    }
+  };
+
   const send = (text: string) => {
     const clean = text.trim();
     if (!clean) return;
     setMessages((current) => [...current, { from: 'user', text: clean }, { from: 'ai', text: replyFor(clean), detail: 'FinoraAI · just now' }]);
     setDraft('');
   };
+
   return (
     <Shell active="ask">
       <div className="mx-auto max-w-3xl">
@@ -866,29 +923,44 @@ function AskAI() {
           }}
           className="sticky bottom-[72px] border-t border-[#573a46]/15 bg-[#f7f2e8]/95 pt-3 backdrop-blur-md sm:bottom-4 sm:pt-4"
         >
+          {isRecording && (
+            <div className="mb-2 flex items-center justify-center gap-2.5 rounded-xl border border-[#e53e3e]/30 bg-[#e53e3e]/10 px-3 py-1.5 text-xs font-bold text-[#e53e3e]">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e53e3e] opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#e53e3e]" />
+              </span>
+              <span className="flex items-center gap-0.5 h-4.5">
+                <span className="w-0.5 rounded bg-[#e53e3e] va-wave-bar-1" />
+                <span className="w-0.5 rounded bg-[#e53e3e] va-wave-bar-2" />
+                <span className="w-0.5 rounded bg-[#e53e3e] va-wave-bar-3" />
+                <span className="w-0.5 rounded bg-[#e53e3e] va-wave-bar-4" />
+                <span className="w-0.5 rounded bg-[#e53e3e] va-wave-bar-5" />
+              </span>
+              Recording... Click mic button to stop
+            </div>
+          )}
           <div className="flex items-center gap-2 rounded-2xl border-2 border-[#573a46]/25 bg-[#f7f2e8] p-1.5 shadow-[2px_2px_0_rgba(87,58,70,.1)] sm:p-2">
             <input
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               data-testid="input-ask-question"
               aria-label="Ask FinoraAI a question"
-              placeholder="Ask in your own words..."
+              placeholder={isRecording ? "Listening... Speak your question..." : "Ask in your own words..."}
               className="min-w-0 flex-1 bg-transparent px-2 text-xs text-[#30282b] outline-none placeholder:text-[#6d6260] sm:text-sm"
             />
             <button
               type="button"
-              onClick={() => {
-                toast({
-                  title: 'Voice Input Activated 🎙️',
-                  description: 'Listening for your question in Hindi or English...',
-                });
-              }}
+              onClick={toggleRecording}
               data-testid="button-mic-question"
-              className="va-tap flex h-8 w-8 items-center justify-center rounded-xl border border-[#573a46]/20 bg-[#eee6d7] text-[#573a46] hover:bg-[#b8d1bf] sm:h-9 sm:w-9"
-              aria-label="Voice input"
-              title="Speak question"
+              className={`va-tap flex h-8 w-8 items-center justify-center rounded-xl transition-all sm:h-9 sm:w-9 ${
+                isRecording
+                  ? 'va-recording-pulse'
+                  : 'border border-[#573a46]/20 bg-[#eee6d7] text-[#573a46] hover:bg-[#b8d1bf]'
+              }`}
+              aria-label={isRecording ? 'Stop voice recording' : 'Start voice recording'}
+              title={isRecording ? 'Click to stop recording' : 'Click to start recording'}
             >
-              <Mic size={16} />
+              {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
             </button>
             <button
               type="submit"

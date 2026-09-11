@@ -5,10 +5,16 @@ import { ArrowUp, ArrowUpRight, MoreHorizontal, Bot, Mic } from 'lucide-react';
 export const AskAITab = () => {
   const { chatMessages, sendChatMessage } = useKhata();
   const [inputText, setInputText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
+    if (isRecording) setIsRecording(false);
     sendChatMessage(inputText);
     setInputText('');
   };
@@ -98,22 +104,32 @@ export const AskAITab = () => {
 
         {/* Input Bar */}
         <div style={styles.inputSection}>
+          {isRecording && (
+            <div style={styles.recordingBanner}>
+              <span style={styles.recordingDot} />
+              <span>Recording... Click mic button to stop</span>
+            </div>
+          )}
           <form onSubmit={handleSubmit} style={styles.inputForm}>
             <input
               type="text"
-              placeholder="Ask in your own words..."
+              placeholder={isRecording ? "Listening... Speak your question..." : "Ask in your own words..."}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               style={styles.chatInput}
             />
             <button
               type="button"
-              onClick={() => alert('Voice input activated! Listening...')}
-              style={styles.micBtn}
-              className="hover-btn"
-              title="Speak question"
+              onClick={toggleRecording}
+              className={isRecording ? "va-recording-pulse" : "hover-btn"}
+              style={{
+                ...styles.micBtn,
+                backgroundColor: isRecording ? '#e53e3e' : '#eee6d7',
+                color: isRecording ? '#ffffff' : '#573a46'
+              }}
+              title={isRecording ? "Click to stop recording" : "Click to start recording"}
             >
-              <Mic size={18} color="#573a46" />
+              <Mic size={18} color={isRecording ? "#FFFFFF" : "#573a46"} />
             </button>
             <button type="submit" style={styles.submitBtn} className="hover-btn">
               <ArrowUp size={18} color="#FFFFFF" />
@@ -273,6 +289,25 @@ const styles = {
   userText: {
     fontSize: '14px',
     fontWeight: '600'
+  },
+  recordingBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    backgroundColor: 'rgba(229, 62, 62, 0.1)',
+    border: '1px solid rgba(229, 62, 62, 0.3)',
+    borderRadius: '12px',
+    padding: '6px 14px',
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#E53E3E',
+    marginBottom: '4px'
+  },
+  recordingDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    backgroundColor: '#E53E3E'
   },
   inputSection: {
     display: 'flex',
