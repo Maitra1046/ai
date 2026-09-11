@@ -781,58 +781,22 @@ function AskAI() {
   ]);
   const [draft, setDraft] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const isRecordingRef = useRef(false);
-  const recognitionRef = useRef<any>(null);
 
   const starters = ['Why was August tight?', 'Can I afford more stock?', 'What should I pay first?'];
 
   const toggleRecording = () => {
-    if (isRecordingRef.current) {
-      isRecordingRef.current = false;
+    if (isRecording) {
       setIsRecording(false);
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (_) {}
-      }
       toast({
         title: 'Voice Recording Stopped',
         description: 'Mic turned off.',
       });
     } else {
-      isRecordingRef.current = true;
       setIsRecording(true);
       toast({
         title: 'Voice Recording Active 🎙️',
-        description: 'Listening... Click mic again when finished to stop.',
+        description: 'Visual recording mode active. Click mic again to stop.',
       });
-
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        try {
-          const rec = new SpeechRecognition();
-          rec.continuous = true;
-          rec.interimResults = true;
-          rec.lang = 'en-IN';
-          rec.onresult = (event: any) => {
-            const transcript = Array.from(event.results)
-              .map((r: any) => r[0].transcript)
-              .join('');
-            setDraft(transcript);
-          };
-          rec.onend = () => {
-            if (isRecordingRef.current) {
-              try {
-                rec.start();
-              } catch (_) {}
-            }
-          };
-          rec.start();
-          recognitionRef.current = rec;
-        } catch (err) {
-          console.warn('Speech recognition error:', err);
-        }
-      }
     }
   };
 
